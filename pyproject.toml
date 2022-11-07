@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "steam-fake-launch"
+version = "0.1.0"
+description = ""
+authors = ["KyuGG <zverolovz@mail.ru>"]
+readme = "README.md"
+packages = [{include = "steam_fake_launch"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+keyboard = "^0.13.5"
+black = "^22.10.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
