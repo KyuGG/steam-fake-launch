@@ -4,15 +4,22 @@ from msvcrt import getch, putch
 import os
 from datatypes.Game import Game
 import re
-
+import vdf
 from colorama import Fore
 from colorama import Style
 import pathlib
 from pynput.keyboard import Key, Listener
+from get_steam_win import get_steam_path
+from parse_steam_lib import parse_steam_lib
 
 path = str(pathlib.Path(__file__).parent.resolve()) + '\game.exe'
 
 CMD_PATH = 'C:/Windows/system32/cmd.exe'
+STEAM_PATH = get_steam_path()
+if STEAM_PATH == None:
+    print(f'{Fore.RED}please, install steam first{Style.RESET_ALL}')
+    exit()
+STEAM_PATH = STEAM_PATH[0]
 
 
 def print_menu(game_chosen):
@@ -38,10 +45,16 @@ def main(game_chosen):
 
 def on_enter(game_chosen):
     exe_path = library[game_chosen - 1].get('exe_path')
+    game_id = library[game_chosen - 1].get('game_id')
 
     # check if exe_path in config.json
     if exe_path == None:
         print(f'{Fore.RED}add "exe_path" parameter to config.json{Style.RESET_ALL}')
+        return
+
+    # check if game_id in config.json
+    if game_id == None:
+        print(f'{Fore.RED}add "game_id" parameter to config.json{Style.RESET_ALL}')
         return
 
     # check if exe file exists
@@ -58,7 +71,7 @@ def on_enter(game_chosen):
 
         os.rename(exe_path, new_exe_path)
         os.symlink(CMD_PATH, exe_path)
-        # os.system('start steam://run/322170')
+        os.system(f'start steam://run/{game_id}')
         print(f'{Fore.GREEN}created symlink{Style.RESET_ALL}')
     except:
         print(f'{Fore.RED}run program with admin user{Style.RESET_ALL}')
@@ -84,7 +97,8 @@ with open('config.json') as file:
     library: list[Game] = load(file)
 current_chosen_game = 1
 print_menu(current_chosen_game)
-
+print(STEAM_PATH)
+parse_steam_lib(STEAM_PATH)
 
 with Listener(on_press=on_press) as listener:
     listener.join()

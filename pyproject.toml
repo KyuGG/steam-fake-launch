@@ -10,6 +10,7 @@ packages = [{include = "steam_fake_launch"}]
 python = "^3.11"
 black = "^22.10.0"
 pynput = "^1.7.6"
+vdf = "^3.4"
 
 
 [build-system]
