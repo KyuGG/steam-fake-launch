@@ -89,6 +89,8 @@ def on_press(key):
             return
         case Key.esc:
             return False
+        case _:
+            return
     main(current_chosen_game)
     print_menu(current_chosen_game)
 
@@ -100,5 +102,6 @@ print_menu(current_chosen_game)
 print(STEAM_PATH)
 parse_steam_lib(STEAM_PATH)
 
-with Listener(on_press=on_press) as listener:
+
+with Listener(on_press=on_press, suppress=True) as listener:
     listener.join()
