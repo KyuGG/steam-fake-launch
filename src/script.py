@@ -1,12 +1,7 @@
-from time import sleep
 from json import load
-from msvcrt import getch, putch
 import os
 from datatypes.Game import Game
-import re
-import vdf
 from colorama import Fore
-from colorama import Style
 import pathlib
 from pynput.keyboard import Key, Listener
 from get_steam_win import get_steam_path
@@ -17,19 +12,18 @@ path = str(pathlib.Path(__file__).parent.resolve()) + '\game.exe'
 CMD_PATH = 'C:/Windows/system32/cmd.exe'
 STEAM_PATH = get_steam_path()
 if STEAM_PATH == None:
-    print(f'{Fore.RED}please, install steam first{Style.RESET_ALL}')
+    print(f'{Fore.RED}please, install steam first{Fore.RESET}')
     exit()
 STEAM_PATH = STEAM_PATH[0]
 
 
 def print_menu(game_chosen):
     os.system('cls')
-    print('steam fake launch\npress ESC to exit')
+    print(f'{Fore.BLUE}steam fake launch\npress ESC to exit{Fore.RESET}')
     for index, game in enumerate(library):
         game_name = game.get('game_name')
         string = f'{index + 1}. {game_name}'
-        if game_chosen == index + 1:
-            string += ' <'
+        string = f'{Fore.MAGENTA}{string}{Fore.RESET} <--' if game_chosen == index + 1 else string
         print(string)
 
 
@@ -49,17 +43,17 @@ def on_enter(game_chosen):
 
     # check if exe_path in config.json
     if exe_path == None:
-        print(f'{Fore.RED}add "exe_path" parameter to config.json{Style.RESET_ALL}')
+        print(f'{Fore.RED}add "exe_path" parameter to config.json{Fore.RESET}')
         return
 
     # check if game_id in config.json
     if game_id == None:
-        print(f'{Fore.RED}add "game_id" parameter to config.json{Style.RESET_ALL}')
+        print(f'{Fore.RED}add "game_id" parameter to config.json{Fore.RESET}')
         return
 
     # check if exe file exists
     if not os.path.isfile(exe_path):
-        print(f'{Fore.RED}wrong "exe_path" path in config.json{Style.RESET_ALL}')
+        print(f'{Fore.RED}wrong "exe_path" path in config.json{Fore.RESET}')
         return
 
     try:
@@ -72,9 +66,9 @@ def on_enter(game_chosen):
         os.rename(exe_path, new_exe_path)
         os.symlink(CMD_PATH, exe_path)
         os.system(f'start steam://run/{game_id}')
-        print(f'{Fore.GREEN}created symlink{Style.RESET_ALL}')
+        print(f'{Fore.GREEN}created symlink{Fore.RESET}')
     except:
-        print(f'{Fore.RED}run program with admin user{Style.RESET_ALL}')
+        print(f'{Fore.RED}run program with admin user{Fore.RESET}')
 
 
 def on_press(key):
