@@ -1,19 +1,21 @@
 import os
 from colorama import Fore
 from pynput.keyboard import Key, Listener
-from get_steam_win import get_steam_path
-from parse_steam_lib import parse_steam_lib, parse_installed_apps
+from src.get_steam_win import get_steam_path
+from src.parse_steam_lib import parse_steam_lib, parse_installed_apps
+import json
 
 
 def print_menu(app_chosen):
     global APPS
     os.system('cls')
-    print(f'{Fore.BLUE}steam fake launch\npress ESC to exit{Fore.RESET}')
+    print(f'{Fore.BLUE}steam fake launch{Fore.RESET}')
     for index, app in enumerate(APPS):
         app_name = app.get('name')
         string = f'{index + 1}. {app_name}'
         string = f'{Fore.MAGENTA}{string}{Fore.RESET} <--' if app_chosen == index + 1 else string
         print(string)
+    print(f'{Fore.BLUE}press ESC to exit{Fore.RESET}')
 
 
 def change_chosen_app(app_chosen):
@@ -26,9 +28,30 @@ def change_chosen_app(app_chosen):
         current_chosen_app = app_chosen
 
 
+import easygui
+
+
 def on_enter(app_chosen):
+    app = APPS[app_chosen - 1]
+    app_id = app.get('id')
+    app_path = app.get('path')
+    exe_path = easygui.fileopenbox(default=f'{app_path}/*.exe')
+
+    # fmt: off
+    app_config = { 
+        app_id: exe_path
+    }
+    # fmt: on
+
+    print(json.dumps(app_config))
+
+    with open('config.json') as file:
+        config = json.load(file)
+        print(config)
+    if str(app_id) in config.keys():
+        print('yes')
+    # print(app_config in config)
     # REWRITE USING INFO ABOUT APP PATH
-    pass
 
     # exe_path = library[app_chosen - 1].get('exe_path')
     # game_id = library[app_chosen - 1].get('game_id')
