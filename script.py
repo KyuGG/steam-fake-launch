@@ -9,13 +9,12 @@ import json
 def print_menu(app_chosen):
     global APPS
     os.system('cls')
-    print(f'{Fore.BLUE}steam fake launch{Fore.RESET}')
+    print(f'{Fore.BLUE}steam fake launch\npress ESC to exit{Fore.RESET}')
     for index, app in enumerate(APPS):
         app_name = app.get('name')
         string = f'{index + 1}. {app_name}'
         string = f'{Fore.MAGENTA}{string}{Fore.RESET} <--' if app_chosen == index + 1 else string
         print(string)
-    print(f'{Fore.BLUE}press ESC to exit{Fore.RESET}')
 
 
 def change_chosen_app(app_chosen):
@@ -37,6 +36,9 @@ def on_enter(app_chosen):
     app_path = app.get('path')
     exe_path = easygui.fileopenbox(default=f'{app_path}/*.exe')
 
+    if exe_path == None:
+        return
+
     # fmt: off
     app_config = { 
         app_id: exe_path
@@ -45,11 +47,13 @@ def on_enter(app_chosen):
 
     print(json.dumps(app_config))
 
-    with open('config.json') as file:
+    with open('config.json', 'r') as file:
         config = json.load(file)
-        print(config)
-    if str(app_id) in config.keys():
-        print('yes')
+        config.update(app_config)
+
+    with open('config.json', 'w') as file:
+        json.dump(config, file, indent=4)
+
     # print(app_config in config)
     # REWRITE USING INFO ABOUT APP PATH
 
