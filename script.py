@@ -1,6 +1,6 @@
 import os
 from colorama import Fore
-from pynput.keyboard import Key, Listener
+from pynput.keyboard import Key, Listener, KeyCode
 from src.get_steam_win import get_steam_path
 from src.parse_steam_lib import parse_steam_lib, parse_installed_apps
 import json
@@ -9,7 +9,9 @@ import json
 def print_menu(app_chosen):
     global APPS
     os.system('cls')
-    print(f'{Fore.BLUE}steam fake launch\npress ESC to exit{Fore.RESET}')
+    print(
+        f'{Fore.BLUE}steam fake launch\npress {Fore.LIGHTRED_EX}ESC{Fore.RESET}{Fore.BLUE} to exit\npress {Fore.LIGHTRED_EX}C{Fore.RESET}{Fore.BLUE} to clear app exe path{Fore.RESET}'
+    )
     for index, app in enumerate(APPS):
         app_name = app.get('name')
         string = f'{index + 1}. {app_name}'
@@ -30,29 +32,49 @@ def change_chosen_app(app_chosen):
 import easygui
 
 
-def on_enter(app_chosen):
+def clear_exe_path(app_chosen):
     app = APPS[app_chosen - 1]
-    app_id = app.get('id')
-    app_path = app.get('path')
-    exe_path = easygui.fileopenbox(default=f'{app_path}/*.exe')
-
-    if exe_path == None:
-        return
-
-    # fmt: off
-    app_config = { 
-        app_id: exe_path
-    }
-    # fmt: on
-
-    print(json.dumps(app_config))
+    app_id = str(app.get('id'))
 
     with open('config.json', 'r') as file:
-        config = json.load(file)
-        config.update(app_config)
+        config: dict = json.load(file)
+
+    try:
+        config.pop(app_id)
+    except:
+        return
 
     with open('config.json', 'w') as file:
         json.dump(config, file, indent=4)
+
+
+def on_enter(app_chosen):
+    app = APPS[app_chosen - 1]
+    app_id = str(app.get('id'))
+    app_path = app.get('path')
+
+    with open('config.json', 'r') as file:
+        config = json.load(file)
+
+    if config.get(app_id) == None:
+        exe_path = easygui.fileopenbox(default=f'{app_path}/*.exe')
+
+        if exe_path == None:
+            return
+
+        # fmt: off
+        app_config = { 
+            app_id: exe_path
+        }
+        # fmt: on
+
+        config.update(app_config)
+        print(config)
+
+        with open('config.json', 'w') as file:
+            json.dump(config, file, indent=4)
+
+    # print(json.dumps(app_config))
 
     # print(app_config in config)
     # REWRITE USING INFO ABOUT APP PATH
@@ -91,6 +113,8 @@ def on_enter(app_chosen):
 
 def on_press(key):
     global listener, current_chosen_app
+    if type(key) == KeyCode:
+        key = key.char
     match key:
         case Key.up:
             current_chosen_app -= 1
@@ -98,6 +122,9 @@ def on_press(key):
             current_chosen_app += 1
         case Key.enter:
             on_enter(current_chosen_app)
+            return
+        case 'c':
+            clear_exe_path(current_chosen_app)
             return
         case Key.esc:
             return False
